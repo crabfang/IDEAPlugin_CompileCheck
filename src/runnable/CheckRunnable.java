@@ -1,4 +1,7 @@
+package runnable;
+
 import com.intellij.openapi.application.ApplicationManager;
+import dialog.CompileCheckDialog;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -11,6 +14,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import utils.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,7 +33,7 @@ public class CheckRunnable implements Runnable {
     private static String repo4U51Release = "http://192.168.2.239:8081/nexus/content/repositories/release";
     private static String repo4JCenter = "http://jcenter.bintray.com";
 
-    private DocumentBuilderFactory builderFactory;
+    private static DocumentBuilderFactory builderFactory;
     private String mQuery;
 
     public CheckRunnable(String query) {
@@ -37,33 +41,45 @@ public class CheckRunnable implements Runnable {
     }
 
     public void run() {
-        builderFactory = DocumentBuilderFactory.newInstance();
+        List<String> compileList = getCompileList(mQuery);
+        showResult(compileList);
+    }
 
+    private void showResult(final List<String> compileList) {
+        ApplicationManager.getApplication().invokeLater(() -> {
+            Logger.info("compile list is " + (compileList == null ? "null" : "" + compileList.size()));
+            String result = "";
+            if(compileList != null && !compileList.isEmpty()) {
+                for(String compile : compileList) {
+                    result += compile + "\n";
+                }
+            } else {
+                result += "check no result";
+            }
+//            Logger.info(result);
+
+            CompileCheckDialog dialog = new CompileCheckDialog();
+            dialog.setLabel(result);
+            dialog.setVisible(true);
+        });
+    }
+
+    public static List<String> getCompileList(String mQuery) {
+        builderFactory = DocumentBuilderFactory.newInstance();
         List<String> urlList = getUrlList(mQuery);
+        List<String> compileList = null;
         for(String url : urlList) {
-            Logger.info(url);
             String response = httpGet(url);
             if(!TextUtils.isEmpty(response)) {
-
-                final List<String> compileList = parseXml4Pom(response);
-                ApplicationManager.getApplication().invokeLater(() -> {
-                    String result = "<html>";
-                    for(String compile : compileList) {
-                        result += compile + "<br/>";
-                    }
-                    result += "</html>";
-                    CompileCheckDialog dialog = new CompileCheckDialog();
-                    dialog.setLabel(result);
-                    dialog.setVisible(true);
-                });
+                compileList = parseXml4Pom(response);
                 break;
             }
         }
-
         builderFactory = null;
+        return compileList;
     }
 
-    private List<String> parseXml4Pom(String xmlStr) {
+    private static List<String> parseXml4Pom(String xmlStr) {
         List<String> compileList = new ArrayList<>();
         Document document;
         try {
@@ -108,9 +124,7 @@ public class CheckRunnable implements Runnable {
         return compileList;
     }
 
-    private String parseXml4Version(String xmlStr) {
-        if(TextUtils.isEmpty(xmlStr)) return "";
-
+    private static String parseXml4Version(String xmlStr) {
         String versionPom = "";
         Document document;
         try {
@@ -119,7 +133,7 @@ public class CheckRunnable implements Runnable {
 
             int headStart = xmlStr.indexOf("<head>");
             int headEnd = xmlStr.indexOf("</head>") + "</head>".length();
-            if(headStart >= 0 && headEnd >= 0) {
+            if(headStart >= 0 && headEnd > headStart) {
                 String headStr = xmlStr.substring(headStart, headEnd);
                 xmlStr = xmlStr.replace(headStr, "");
             }
@@ -147,7 +161,7 @@ public class CheckRunnable implements Runnable {
         return versionPom;
     }
 
-    private String httpGet(String url) {
+    private static String httpGet(String url) {
         String responseStr = "";
         try {
             RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(5000).setConnectTimeout(5000)
@@ -160,8 +174,7 @@ public class CheckRunnable implements Runnable {
             if (status >= 200 && status < 300) {
                 HttpEntity resEntity = response.getEntity();
                 responseStr = EntityUtils.toString(resEntity, "UTF-8");
-            } else {
-                Logger.info("http request none");
+                Logger.info(url + "----> get data");
             }
         } catch (IOException e) {
             Logger.error("http request error");
@@ -169,7 +182,7 @@ public class CheckRunnable implements Runnable {
         return responseStr;
     }
 
-    private List<String> getUrlList(String aarInfo) {
+    private static List<String> getUrlList(String aarInfo) {
         List<String> list = new ArrayList<>();
 
         list.add(createUrl(repo4U51Snapshot, aarInfo));
@@ -179,12 +192,15 @@ public class CheckRunnable implements Runnable {
         return list;
     }
 
-    private String getVersionPom(String url) {
+    private static String getVersionPom(String url) {
         String response = httpGet(url);
+        if(TextUtils.isEmpty(response)) {
+            return "";
+        }
         return parseXml4Version(response);
     }
 
-    private String createUrl(String url, String aarInfo) {
+    private static String createUrl(String url, String aarInfo) {
         String[] aarArray = aarInfo.split(":");
         String groupId = aarArray[0];
         String artifactId = aarArray[1];

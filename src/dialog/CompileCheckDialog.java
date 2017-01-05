@@ -1,9 +1,11 @@
+package dialog;
+
 import javax.swing.*;
 import java.awt.event.*;
 
 public class CompileCheckDialog extends JDialog {
     private JPanel contentPane;
-    private JLabel labelContent;
+    private JTextPane labelContent;
 
     public CompileCheckDialog() {
         setContentPane(contentPane);

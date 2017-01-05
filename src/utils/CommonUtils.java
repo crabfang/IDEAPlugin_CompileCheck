@@ -1,45 +1,18 @@
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
+package utils;
+
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.util.TextRange;
-import org.apache.http.util.TextUtils;
 
 /**
- * Created by sky on 16/5/17.
+ *
+ * Created by cabe on 17/1/3.
  */
-public class ECTranslation extends AnAction {
-    private long latestClickTime;
+public class CommonUtils {
+    private static long latestClickTime;
 
-    @Override
-    public void actionPerformed(AnActionEvent e) {
-        if (!isFastClick(1000)) {
-            Logger.init(getClass().getSimpleName(), Logger.DEBUG);
-            getTranslation(e);
-        }
-    }
-
-    private void getTranslation(AnActionEvent event) {
-        Editor mEditor = event.getData(PlatformDataKeys.EDITOR);
-        if (null == mEditor) {
-            return;
-        }
-        SelectionModel model = mEditor.getSelectionModel();
-        String selectedText = model.getSelectedText();
-        if (TextUtils.isEmpty(selectedText)) {
-            selectedText = getCurrentWords(mEditor);
-            if (TextUtils.isEmpty(selectedText)) {
-                return;
-            }
-        }
-        String queryText = strip(addBlanks(selectedText));
-        new Thread(new RequestRunnable(mEditor, queryText)).start();
-    }
-
-    public String getCurrentWords(Editor editor) {
+    public static String getCurrentWords(Editor editor) {
         Document document = editor.getDocument();
         CaretModel caretModel = editor.getCaretModel();
         int caretOffset = caretModel.getOffset();
@@ -51,7 +24,6 @@ public class ECTranslation extends AnAction {
         int start = 0, end = 0, cursor = caretOffset - lineStartOffset;
 
         if (!Character.isLetter(chars[cursor])) {
-            Logger.warn("Caret not in a word");
             return null;
         }
 
@@ -75,11 +47,10 @@ public class ECTranslation extends AnAction {
         }
 
         String ret = new String(chars, start, end-start);
-        Logger.info("Selected words: " + ret);
         return ret;
     }
 
-    public String addBlanks(String str) {
+    public static String addBlanks(String str) {
         String temp = str.replaceAll("_", " ");
         if (temp.equals(temp.toUpperCase())) {
             return temp;
@@ -88,7 +59,7 @@ public class ECTranslation extends AnAction {
         return result;
     }
 
-    public String strip(String str) {
+    public static String strip(String str) {
         return str.replaceAll("/\\*+", "")
                 .replaceAll("\\*+/", "")
                 .replaceAll("\\*", "")
@@ -97,7 +68,7 @@ public class ECTranslation extends AnAction {
                 .replaceAll("\\s+", " ");
     }
 
-    public boolean isFastClick(long timeMillis) {
+    public static boolean isFastClick(long timeMillis) {
         long time = System.currentTimeMillis();
         long timeD = time - latestClickTime;
         if (0 < timeD && timeD < timeMillis) {

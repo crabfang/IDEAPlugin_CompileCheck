@@ -3,17 +3,21 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.http.util.TextUtils;
 import runnable.CheckRunnable;
+import runnable.FileRunnable;
 import utils.CommonUtils;
 import utils.Logger;
+
+import java.io.File;
 
 /**
  *
  * Created by cabe on 17/1/3.
  */
-public class CompileCheckAction extends AnAction {
+public class CompileCheckProjectAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
@@ -25,18 +29,15 @@ public class CompileCheckAction extends AnAction {
     }
 
     private void handleEvent(AnActionEvent event) {
-        Editor mEditor = event.getData(PlatformDataKeys.EDITOR);
-        if (mEditor == null) return;
-
-        SelectionModel model = mEditor.getSelectionModel();
-        String text = model.getSelectedText();
-        if (TextUtils.isEmpty(text)) {
-            text = CommonUtils.getCurrentWords(mEditor);
-            if (TextUtils.isEmpty(text)) {
-                return;
-            }
+        String projectPath = "";
+        VirtualFile virtualFile = event.getData(PlatformDataKeys.VIRTUAL_FILE);
+        if(virtualFile != null) {
+            projectPath = virtualFile.getPath();
         }
-        Logger.info(text);
-        new Thread(new CheckRunnable(text)).start();
+
+        String[] group = projectPath.split("/");
+        String projectName = group[group.length - 1];
+        Logger.info(projectName + "-->" + projectPath);
+        new Thread(new FileRunnable(projectPath)).start();
     }
 }

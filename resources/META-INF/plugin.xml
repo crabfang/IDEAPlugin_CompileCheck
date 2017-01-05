@@ -2,7 +2,7 @@
   <depends>com.intellij.modules.lang</depends>
   <id>com.cabe.plugin.as.compileCheck</id>
   <name>CompileCheck</name>
-  <version>1.0</version>
+  <version>1.1</version>
   <vendor email="support@yourcompany.com" url="http://www.github.com/crabfang/ASPlugin">AsPlugin</vendor>
 
   <description><![CDATA[
@@ -31,9 +31,13 @@
 
   <actions>
     <!-- Add your actions here -->
-    <action id="Cabe.Gradle.CompileCheck" class="CompileCheckAction" text="CompileCheck" description="gradle compile check action">
-      <add-to-group group-id="EditMenu" anchor="first"/>
+    <action id="Cabe.Gradle.CompileCheck" class="CompileCheckAction" text="Compile Check" description="sdk compile list check">
+      <add-to-group group-id="AnalyzeMenu" anchor="first"/>
       <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="EditorToggleColumnMode"/>
+    </action>
+    <action id="Cabe.Gradle.CompileCheck.Project" class="CompileCheckProjectAction" text="Analyze Project Compile" description="project gradle compile list analyze">
+      <add-to-group group-id="AnalyzeMenu" anchor="first"/>
+      <add-to-group group-id="ProjectViewAnalysisGroup" anchor="after" relative-to-action="ProjectViewPopupMenu"/>
     </action>
 
   </actions>
