@@ -49,16 +49,20 @@ public class CheckRunnable implements Runnable {
         ApplicationManager.getApplication().invokeLater(() -> {
             Logger.info("compile list is " + (compileList == null ? "null" : "" + compileList.size()));
             String result = "";
+            int maxLineLen = 0;
             if(compileList != null && !compileList.isEmpty()) {
                 for(String compile : compileList) {
                     result += compile + "\n";
+                    if(compile.length() > maxLineLen) {
+                        maxLineLen = compile.length();
+                    }
                 }
             } else {
                 result += "check no result";
             }
-//            Logger.info(result);
 
             CompileCheckDialog dialog = new CompileCheckDialog();
+            dialog.updateDialogWidth(maxLineLen);
             dialog.setLabel(result);
             dialog.setVisible(true);
         });

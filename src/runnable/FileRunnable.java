@@ -45,15 +45,22 @@ public class FileRunnable implements Runnable {
     private void showResult(final Map<String, List<String>> map) {
         ApplicationManager.getApplication().invokeLater(() -> {
             Logger.info("compile list is " + (map == null ? "null" : "" + map.size()));
+            int maxLineLen = 0;
             String result = "";
             if(map != null && !map.isEmpty()) {
                 Set<String> keySet = map.keySet();
                 for(String key : keySet) {
                     List<String> list = map.get(key);
                     result += key + "\n";
+                    if(key.length() > maxLineLen) {
+                        maxLineLen = key.length();
+                    }
                     if(list != null && !list.isEmpty()) {
                         for(String compile : list) {
                             result += "      " + compile + "\n";
+                            if(("      " + compile).length() > maxLineLen) {
+                                maxLineLen = ("      " + compile).length();
+                            }
                         }
                     }
                 }
@@ -63,6 +70,7 @@ public class FileRunnable implements Runnable {
             Logger.info(result);
 
             CompileCheckDialog dialog = new CompileCheckDialog();
+            dialog.updateDialogWidth(maxLineLen);
             dialog.setLabel(result);
             dialog.setVisible(true);
         });

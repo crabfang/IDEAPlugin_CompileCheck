@@ -7,10 +7,13 @@ public class CompileCheckDialog extends JDialog {
     private JPanel contentPane;
     private JTextPane labelContent;
 
+    private int positionX = 300;
+    private int positionY = 200;
+
     public CompileCheckDialog() {
         setContentPane(contentPane);
         setModal(true);
-        setBounds(300, 300, 400, 300);
+        setBounds(positionX, positionY, 400, 300);
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -35,6 +38,16 @@ public class CompileCheckDialog extends JDialog {
 
     public void setLabel(String info) {
         labelContent.setText(info);
+    }
+
+    public void updateDialogWidth(int maxLength) {
+        if(maxLength > 60) {
+            int width = (int) (1.0f * 400 / 60 * maxLength + 20);
+            if(width > 1000) {
+                width = 1000;
+            }
+            setBounds(positionX, positionY, width, 300);
+        }
     }
 
     public static void main(String[] args) {
