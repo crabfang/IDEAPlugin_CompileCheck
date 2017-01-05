@@ -7,10 +7,12 @@
 选择需要检测的Module目录，右键点击“Analyze Project Compile”，
 之后就会显示改Module的build.gradle下的依赖库自身依赖的sdk信息了，
 该插件只支持一级compile的解析<br/>
-<img src="./screenshot/screenshot_method_for_module.png"  width="600" height="947"/>
+<img src="./screenshot/screenshot_method_for_module.png"  width="600" height="947"/><br/>
+<img src="./screenshot/screenshot_result_for_module.png"  width="700" height="307"/>
 
 #### 单个compile信息的查询
 
 选择需要解析的compile库，比如“AndroidPluginDemo”，
 右键点击“Compile Check”，之后就会显示改库所依赖的第三方库了<br/>
-<img src="./screenshot/screenshot_method_for_compile.png"  width="570" height="580"/>
+<img src="./screenshot/screenshot_method_for_compile.png"  width="570" height="580"/><br/>
+<img src="./screenshot/screenshot_result_for_compile.png"  width="566" height="333"/>
