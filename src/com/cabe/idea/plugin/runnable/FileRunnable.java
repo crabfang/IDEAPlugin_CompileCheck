@@ -1,9 +1,9 @@
-package runnable;
+package com.cabe.idea.plugin.runnable;
 
 import com.intellij.openapi.application.ApplicationManager;
-import dialog.CompileCheckDialog;
+import com.cabe.idea.plugin.dialog.CompileCheckDialog;
+import com.cabe.idea.plugin.utils.Logger;
 import org.apache.http.util.TextUtils;
-import utils.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;

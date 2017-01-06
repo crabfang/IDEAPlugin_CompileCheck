@@ -27,15 +27,16 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
+    <applicationConfigurable instance="com.cabe.idea.plugin.setting.SettingForm"/>
   </extensions>
 
   <actions>
     <!-- Add your actions here -->
-    <action id="Cabe.Gradle.CompileCheck" class="CompileCheckAction" text="Compile Check" description="sdk compile list check">
+    <action id="Cabe.Gradle.CompileCheck" class="com.cabe.idea.plugin.CompileCheckAction" text="Compile Check" description="sdk compile list check">
       <add-to-group group-id="AnalyzeMenu" anchor="first"/>
       <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="EditorToggleColumnMode"/>
     </action>
-    <action id="Cabe.Gradle.CompileCheck.Project" class="CompileCheckProjectAction" text="Analyze Project Compile" description="project gradle compile list analyze">
+    <action id="Cabe.Gradle.CompileCheck.Project" class="com.cabe.idea.plugin.CompileCheckProjectAction" text="Analyze Project Compile" description="project gradle compile list analyze">
       <add-to-group group-id="AnalyzeMenu" anchor="first"/>
       <add-to-group group-id="ProjectViewAnalysisGroup" anchor="after" relative-to-action="ProjectViewPopupMenu"/>
     </action>

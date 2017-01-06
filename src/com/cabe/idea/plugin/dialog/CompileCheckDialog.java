@@ -1,4 +1,4 @@
-package dialog;
+package com.cabe.idea.plugin.dialog;
 
 import javax.swing.*;
 import java.awt.event.*;

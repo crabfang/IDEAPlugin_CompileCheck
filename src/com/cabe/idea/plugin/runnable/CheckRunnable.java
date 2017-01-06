@@ -1,7 +1,7 @@
-package runnable;
+package com.cabe.idea.plugin.runnable;
 
 import com.intellij.openapi.application.ApplicationManager;
-import dialog.CompileCheckDialog;
+import com.cabe.idea.plugin.dialog.CompileCheckDialog;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -14,7 +14,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import utils.Logger;
+import com.cabe.idea.plugin.setting.SettingForm;
+import com.cabe.idea.plugin.utils.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,8 +30,8 @@ import java.util.List;
  * Created by sky on 16/5/18.
  */
 public class CheckRunnable implements Runnable {
-    private static String repo4U51Snapshot = "http://192.168.2.239:8081/nexus/content/repositories/snapshots";
-    private static String repo4U51Release = "http://192.168.2.239:8081/nexus/content/repositories/release";
+    private static String suffixSnapshot = "/snapshots";
+    private static String suffixRelease = "/release";
     private static String repo4JCenter = "http://jcenter.bintray.com";
 
     private static DocumentBuilderFactory builderFactory;
@@ -189,8 +190,9 @@ public class CheckRunnable implements Runnable {
     private static List<String> getUrlList(String aarInfo) {
         List<String> list = new ArrayList<>();
 
-        list.add(createUrl(repo4U51Snapshot, aarInfo));
-        list.add(createUrl(repo4U51Release, aarInfo));
+        String customPath = SettingForm.getCustomPath();
+        list.add(createUrl(customPath + suffixSnapshot, aarInfo));
+        list.add(createUrl(customPath + suffixRelease, aarInfo));
         list.add(createUrl(repo4JCenter, aarInfo));
 
         return list;

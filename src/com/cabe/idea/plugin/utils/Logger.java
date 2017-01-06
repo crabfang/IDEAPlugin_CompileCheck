@@ -1,4 +1,4 @@
-package utils;
+package com.cabe.idea.plugin.utils;
 
 import com.intellij.notification.*;
 

@@ -1,13 +1,14 @@
+package com.cabe.idea.plugin;
+
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
-import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.http.util.TextUtils;
-import runnable.CheckRunnable;
-import utils.CommonUtils;
-import utils.Logger;
+import com.cabe.idea.plugin.runnable.CheckRunnable;
+import com.cabe.idea.plugin.utils.CommonUtils;
+import com.cabe.idea.plugin.utils.Logger;
 
 /**
  *

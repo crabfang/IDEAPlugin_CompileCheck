@@ -1,20 +1,15 @@
+package com.cabe.idea.plugin;
+
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.SelectionModel;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.apache.http.util.TextUtils;
-import runnable.CheckRunnable;
-import runnable.FileRunnable;
-import utils.CommonUtils;
-import utils.Logger;
-
-import java.io.File;
+import com.cabe.idea.plugin.runnable.FileRunnable;
+import com.cabe.idea.plugin.utils.CommonUtils;
+import com.cabe.idea.plugin.utils.Logger;
 
 /**
- *
+ * Project Compile Check
  * Created by cabe on 17/1/3.
  */
 public class CompileCheckProjectAction extends AnAction {
