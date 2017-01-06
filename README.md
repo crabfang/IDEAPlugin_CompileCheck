@@ -2,6 +2,10 @@
 
 首先，安装插件“CompileCheck”并重启IDE
 
+### Setting自定义仓库
+
+<img src="./screenshot/screenshot_setting.png"  width="1200" height="640"/>
+
 #### Module目录的compile解析
 
 选择需要检测的Module目录，右键点击“Analyze Project Compile”，

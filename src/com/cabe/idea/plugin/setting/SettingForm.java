@@ -15,8 +15,9 @@ import javax.swing.*;
 public class SettingForm implements Configurable {
     private final static String CUSTOM_PATH_KEY = "keyCustomHost";
 
-    private JTextField customPath;
     private JPanel rootPanel;
+    private JTextField customPath;
+    private JLabel customLabel;
 
     @Nls
     @Override

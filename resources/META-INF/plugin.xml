@@ -2,8 +2,8 @@
   <depends>com.intellij.modules.lang</depends>
   <id>com.cabe.plugin.as.compileCheck</id>
   <name>CompileCheck</name>
-  <version>1.1</version>
-  <vendor email="support@yourcompany.com" url="http://www.github.com/crabfang/ASPlugin">AsPlugin</vendor>
+  <version>1.2</version>
+  <vendor email="crabfang@163.com" url="https://github.com/crabfang/IDEAPlugin_CompileCheck">IDEAPlugin_CompileCheck</vendor>
 
   <description><![CDATA[
       Enter short description for your plugin here.<br>
