@@ -1,5 +1,6 @@
 package com.cabe.idea.plugin.setting;
 
+import com.cabe.idea.plugin.utils.Logger;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
@@ -17,7 +18,6 @@ public class SettingForm implements Configurable {
 
     private JPanel rootPanel;
     private JTextField customPath;
-    private JLabel customLabel;
 
     @Nls
     @Override
@@ -34,7 +34,7 @@ public class SettingForm implements Configurable {
     @Nullable
     @Override
     public JComponent createComponent() {
-        reset();
+        Logger.init(SettingForm.class.getSimpleName(), Logger.DEBUG);
         return rootPanel;
     }
 
@@ -45,12 +45,15 @@ public class SettingForm implements Configurable {
 
     @Override
     public void apply() throws ConfigurationException {
-        setCustomPath(customPath.getText());
+        String str = customPath.getText();
+        Logger.info("apply custom path : " + str);
+        setCustomPath(str);
     }
 
     @Override
     public void reset() {
-        customPath.setText("");
+        String str = getCustomPath();
+        customPath.setText(str);
     }
 
     private static void setCustomPath(String customHost) {
@@ -59,5 +62,10 @@ public class SettingForm implements Configurable {
 
     public static String getCustomPath() {
         return PropertiesComponent.getInstance().getValue(CUSTOM_PATH_KEY, "");
+    }
+
+    @Override
+    public void disposeUIResources() {
+
     }
 }

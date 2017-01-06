@@ -16,14 +16,14 @@
         </constraints>
         <properties/>
       </component>
-      <component id="5615d" class="javax.swing.JLabel" binding="customLabel">
+      <component id="5615d" class="javax.swing.JLabel">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false">
             <preferred-size width="-1" height="25"/>
           </grid>
         </constraints>
         <properties>
-          <enabled value="false"/>
+          <enabled value="true"/>
           <horizontalTextPosition value="11"/>
           <text value="CustomPath"/>
         </properties>
