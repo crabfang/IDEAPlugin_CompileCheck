@@ -3,7 +3,11 @@ package com.cabe.idea.plugin.utils;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.projectRoots.ProjectJdkTable;
+import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.util.TextRange;
+
+import java.io.File;
 
 /**
  *
@@ -76,5 +80,17 @@ public class CommonUtils {
         }
         latestClickTime = time;
         return false;
+    }
+
+    public static Sdk findAndroidSDK() {
+        Sdk[] allJDKs = ProjectJdkTable.getInstance().getAllJdks();
+        for (Sdk sdk : allJDKs) {
+            Logger.info("sdk : " + sdk.getSdkType().getName());
+            if (sdk.getSdkType().getName().toLowerCase().contains("android")) {
+                return sdk;
+            }
+        }
+
+        return null; // no Android SDK found
     }
 }

@@ -1,4 +1,4 @@
-package com.cabe.idea.plugin;
+package com.cabe.idea.plugin.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;

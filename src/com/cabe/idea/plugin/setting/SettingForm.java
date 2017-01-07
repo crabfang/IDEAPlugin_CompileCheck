@@ -1,6 +1,5 @@
 package com.cabe.idea.plugin.setting;
 
-import com.cabe.idea.plugin.utils.Logger;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
@@ -14,10 +13,12 @@ import javax.swing.*;
  * Created by cabe on 17/1/6.
  */
 public class SettingForm implements Configurable {
-    private final static String CUSTOM_PATH_KEY = "keyCustomHost";
+    private final static String KEY_CUSTOM_PATH = "keyCustomHost";
+    private final static String KEY_LOCAL_CACHE = "keyLocalCache";
 
     private JPanel rootPanel;
     private JTextField customPath;
+    private JTextField localCache;
 
     @Nls
     @Override
@@ -34,7 +35,6 @@ public class SettingForm implements Configurable {
     @Nullable
     @Override
     public JComponent createComponent() {
-        Logger.init(SettingForm.class.getSimpleName(), Logger.DEBUG);
         return rootPanel;
     }
 
@@ -45,23 +45,36 @@ public class SettingForm implements Configurable {
 
     @Override
     public void apply() throws ConfigurationException {
-        String str = customPath.getText();
-        Logger.info("apply custom path : " + str);
-        setCustomPath(str);
+        String path = customPath.getText();
+        setCustomPath(path);
+
+        String cache = localCache.getText();
+        setLocalCache(cache);
     }
 
     @Override
     public void reset() {
-        String str = getCustomPath();
-        customPath.setText(str);
+        String path = getCustomPath();
+        customPath.setText(path);
+
+        String cache = getLocalCache();
+        localCache.setText(cache);
     }
 
     private static void setCustomPath(String customHost) {
-        PropertiesComponent.getInstance().setValue(CUSTOM_PATH_KEY, customHost);
+        PropertiesComponent.getInstance().setValue(KEY_CUSTOM_PATH, customHost);
     }
 
     public static String getCustomPath() {
-        return PropertiesComponent.getInstance().getValue(CUSTOM_PATH_KEY, "");
+        return PropertiesComponent.getInstance().getValue(KEY_CUSTOM_PATH, "");
+    }
+
+    private static void setLocalCache(String localCache) {
+        PropertiesComponent.getInstance().setValue(KEY_LOCAL_CACHE, localCache);
+    }
+
+    public static String getLocalCache() {
+        return PropertiesComponent.getInstance().getValue(KEY_LOCAL_CACHE, "");
     }
 
     @Override
