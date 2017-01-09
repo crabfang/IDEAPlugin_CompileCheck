@@ -2,6 +2,7 @@ package com.cabe.idea.plugin.dialog;
 
 import javax.swing.*;
 import java.awt.event.*;
+import java.util.List;
 
 public class CompileCheckDialog extends JDialog {
     private JPanel contentPane;
@@ -38,6 +39,22 @@ public class CompileCheckDialog extends JDialog {
 
     public void setLabel(String info) {
         labelContent.setText(info);
+    }
+
+    public void setLabel(List<String> list) {
+        if(list != null) {
+            int maxLineLen = 0;
+
+            String info = "";
+            for(String str : list) {
+                if(str.length() > maxLineLen) {
+                    maxLineLen = str.length();
+                    info += str + "\n";
+                }
+            }
+            updateDialogWidth(maxLineLen);
+            setLabel(info);
+        }
     }
 
     public void updateDialogWidth(int maxLength) {

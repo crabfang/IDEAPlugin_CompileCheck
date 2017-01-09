@@ -108,10 +108,24 @@ public class XmlUtils {
         return info;
     }
 
+    private static String handleHtml(String html) {
+        html = html.replace("\n", "");
+        html = html.replace("&nbsp;", "");
+
+        int headStart = html.indexOf("<head>");
+        int headEnd = html.indexOf("</head>") + "</head>".length();
+        if(headStart >= 0 && headEnd > headStart) {
+            String headStr = html.substring(headStart, headEnd);
+            html = html.replace(headStr, "");
+        }
+        return html;
+    }
+
     public static List<CompileInfo> parsePom4Dependency(String xmlStr) {
         List<CompileInfo> compileList = new ArrayList<>();
         Document document;
         try {
+            xmlStr = handleHtml(xmlStr);
             StringReader sr = new StringReader(xmlStr);
             InputSource is = new InputSource(sr);
 
@@ -135,16 +149,7 @@ public class XmlUtils {
         String versionPom = "";
         Document document;
         try {
-            xmlStr = xmlStr.replace("\n", "");
-            xmlStr = xmlStr.replace("&nbsp;", "");
-
-            int headStart = xmlStr.indexOf("<head>");
-            int headEnd = xmlStr.indexOf("</head>") + "</head>".length();
-            if(headStart >= 0 && headEnd > headStart) {
-                String headStr = xmlStr.substring(headStart, headEnd);
-                xmlStr = xmlStr.replace(headStr, "");
-            }
-
+            xmlStr = handleHtml(xmlStr);
             StringReader sr = new StringReader(xmlStr);
             InputSource is = new InputSource(sr);
 

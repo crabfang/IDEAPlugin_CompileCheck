@@ -1,5 +1,6 @@
 package com.cabe.idea.plugin.runnable;
 
+import com.cabe.idea.plugin.dialog.CompileCheckDialog;
 import com.cabe.idea.plugin.model.CompileInfo;
 import com.cabe.idea.plugin.model.ModuleInfo;
 import com.cabe.idea.plugin.model.PomInfo;
@@ -44,24 +45,26 @@ public class SearchRunnable implements Runnable {
             }
         }
         if(moduleList != null) {
-            String prefix = "\n       ------> ";
+            String prefix1 = "\n  ------> ";
+            String prefix2 = "\n    ------> ";
+            String prefix3 = "\n      ------> ";
             for(ModuleInfo module : moduleList) {
                 Map<CompileInfo, List<CompileInfo>> dependencyMap = module.compileMap;
                 if(dependencyMap == null) continue;
 
                 if(dependencyMap.containsKey(info)) {
-                    resultList.add(module.name + prefix + info);
+                    resultList.add(module.name + prefix1 + info);
                 }
                 for(CompileInfo first : dependencyMap.keySet()) {
                     List<CompileInfo> secondCompile = dependencyMap.get(first);
                     if(secondCompile == null) continue;
 
                     if(secondCompile.contains(info)) {
-                        resultList.add(module.name + prefix + first + prefix + info);
+                        resultList.add(module.name + prefix1 + first + prefix2 + info);
                     }
                     for(CompileInfo second : secondCompile) {
                         if(compileList.contains(second)) {
-                            resultList.add(module.name + prefix + first + prefix + second + prefix + info);
+                            resultList.add(module.name + prefix1 + first + prefix2 + second + prefix3 + info);
                         }
                     }
                 }
@@ -73,6 +76,10 @@ public class SearchRunnable implements Runnable {
         for(String result : resultList) {
             Logger.info(result);
         }
+
+        CompileCheckDialog dialog = new CompileCheckDialog();
+        dialog.setLabel(resultList);
+        dialog.setVisible(true);
 
         XmlUtils.release();
     }
