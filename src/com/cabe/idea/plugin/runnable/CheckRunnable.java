@@ -3,7 +3,6 @@ package com.cabe.idea.plugin.runnable;
 import com.cabe.idea.plugin.dialog.CompileCheckDialog;
 import com.cabe.idea.plugin.model.CompileInfo;
 import com.cabe.idea.plugin.setting.SettingForm;
-import com.cabe.idea.plugin.utils.CommonUtils;
 import com.cabe.idea.plugin.utils.Logger;
 import com.cabe.idea.plugin.utils.PomUtils;
 import com.cabe.idea.plugin.utils.XmlUtils;
