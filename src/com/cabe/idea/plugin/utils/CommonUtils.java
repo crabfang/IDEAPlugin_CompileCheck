@@ -7,7 +7,9 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.util.TextRange;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 
 /**
  *
@@ -92,5 +94,17 @@ public class CommonUtils {
         }
 
         return null; // no Android SDK found
+    }
+
+    public static void saveFile(String filePath, String content) throws Exception {
+        File file = new File(filePath);
+        if(file.exists() || file.createNewFile()) {
+            FileWriter fw = new FileWriter(filePath);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.newLine();
+            bw.write(content);
+            bw.close();
+            fw.close();
+        }
     }
 }

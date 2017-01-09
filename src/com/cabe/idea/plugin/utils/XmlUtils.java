@@ -121,6 +121,26 @@ public class XmlUtils {
         return html;
     }
 
+    public static List<CompileInfo> parsePom4DependencyWithFile(String xmlPath) {
+        List<CompileInfo> compileList = new ArrayList<>();
+        Document document;
+        try {
+            //DOM parser instance
+            DocumentBuilder builder = builderFactory.newDocumentBuilder();
+            //parse an XML file into a DOM tree
+            document = builder.parse(xmlPath);
+
+            NodeList nodeList = document.getElementsByTagName("dependency");
+            compileList = parseDependency(nodeList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(compileList != null) {
+            compileList.sort(Comparator.comparing(CompileInfo::toString));
+        }
+        return compileList;
+    }
+
     public static List<CompileInfo> parsePom4Dependency(String xmlStr) {
         List<CompileInfo> compileList = new ArrayList<>();
         Document document;

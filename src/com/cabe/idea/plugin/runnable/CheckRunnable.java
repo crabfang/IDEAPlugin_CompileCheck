@@ -3,7 +3,9 @@ package com.cabe.idea.plugin.runnable;
 import com.cabe.idea.plugin.dialog.CompileCheckDialog;
 import com.cabe.idea.plugin.model.CompileInfo;
 import com.cabe.idea.plugin.setting.SettingForm;
+import com.cabe.idea.plugin.utils.CommonUtils;
 import com.cabe.idea.plugin.utils.Logger;
+import com.cabe.idea.plugin.utils.PomUtils;
 import com.cabe.idea.plugin.utils.XmlUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import org.apache.http.HttpEntity;
@@ -15,6 +17,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.util.TextUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,13 +68,25 @@ public class CheckRunnable implements Runnable {
 
     public static List<CompileInfo> getCompileList(String aarInfo) {
         XmlUtils.init();
-        List<String> urlList = getUrlList(aarInfo);
+
         List<CompileInfo> compileList = null;
-        for(String url : urlList) {
-            String response = httpGet(url);
-            if(!TextUtils.isEmpty(response)) {
-                compileList = XmlUtils.parsePom4Dependency(response);
-                break;
+        String pomCache = PomUtils.createPomFilePath(aarInfo);
+        File cache = new File(pomCache);
+        if(cache.exists()) {
+            compileList = XmlUtils.parsePom4DependencyWithFile(pomCache);
+        } else {
+            List<String> urlList = getUrlList(aarInfo);
+            for(String url : urlList) {
+                String response = httpGet(url);
+                if(!TextUtils.isEmpty(response)) {
+                    compileList = XmlUtils.parsePom4Dependency(response);
+                    try {
+                        PomUtils.savePom(aarInfo, response);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                }
             }
         }
         XmlUtils.release();
