@@ -17,7 +17,7 @@
         <properties>
           <enabled value="true"/>
           <horizontalTextPosition value="11"/>
-          <text value="CustomPath"/>
+          <text value="CustomRepository"/>
         </properties>
       </component>
       <component id="666c8" class="javax.swing.JLabel">
@@ -27,7 +27,7 @@
           </grid>
         </constraints>
         <properties>
-          <text value="LocalCache"/>
+          <text value="GradleLocalCache"/>
         </properties>
       </component>
       <component id="46ae0" class="javax.swing.JTextField" binding="localCache">
