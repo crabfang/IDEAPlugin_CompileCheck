@@ -15,10 +15,12 @@ import javax.swing.*;
 public class SettingForm implements Configurable {
     private final static String KEY_CUSTOM_PATH = "keyCustomHost";
     private final static String KEY_LOCAL_CACHE = "keyLocalCache";
+    private final static String KEY_COMPILE_LEVEL = "keyCompileLevel";
 
     private JPanel rootPanel;
     private JTextField customPath;
     private JTextField localCache;
+    private JTextField compileLevel;
 
     @Nls
     @Override
@@ -50,6 +52,9 @@ public class SettingForm implements Configurable {
 
         String cache = localCache.getText();
         setLocalCache(cache);
+
+        String level = compileLevel.getText();
+        setCompileLevel(level);
     }
 
     @Override
@@ -59,6 +64,9 @@ public class SettingForm implements Configurable {
 
         String cache = getLocalCache();
         localCache.setText(cache);
+
+        String level = getCompileLevel() + "";
+        compileLevel.setText(level);
     }
 
     private static void setCustomPath(String customHost) {
@@ -75,6 +83,25 @@ public class SettingForm implements Configurable {
 
     public static String getLocalCache() {
         return PropertiesComponent.getInstance().getValue(KEY_LOCAL_CACHE, "");
+    }
+
+    private static void setCompileLevel(String compileLevel) {
+        PropertiesComponent.getInstance().setValue(KEY_COMPILE_LEVEL, compileLevel);
+    }
+
+    public static int getCompileLevel() {
+        int defaultLevel = 2;
+        int level = defaultLevel;
+        try {
+            String strLevel = PropertiesComponent.getInstance().getValue(KEY_COMPILE_LEVEL, "" + defaultLevel);
+            level = Integer.parseInt(strLevel);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(level < defaultLevel) {
+            level = defaultLevel;
+        }
+        return level;
     }
 
     @Override

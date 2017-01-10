@@ -19,12 +19,10 @@ import java.util.Map;
  */
 public class SearchRunnable implements Runnable {
     private String projectPath;
-    private String cachePath;
     private CompileInfo curInfo;
 
-    public SearchRunnable(String projectPath, String cachePath, CompileInfo curInfo) {
+    public SearchRunnable(String projectPath, CompileInfo curInfo) {
         this.projectPath = projectPath;
-        this.cachePath = cachePath;
         this.curInfo = curInfo;
     }
 
@@ -33,10 +31,6 @@ public class SearchRunnable implements Runnable {
         XmlUtils.init();
 
 //        List<PomInfo> containList = searchPom(cachePath);
-
-        List<ModuleInfo> moduleList = findModuleCompile(projectPath);
-
-        List<String> resultList = new ArrayList<>();
 //        List<CompileInfo> compileList = new ArrayList<>();
 //        if(containList != null) {
 //            for(PomInfo pom : containList) {
@@ -44,24 +38,26 @@ public class SearchRunnable implements Runnable {
 //                Logger.info("" + pom);
 //            }
 //        }
+
+        List<ModuleInfo> moduleList = findModuleCompile(projectPath);
+
+        List<String> resultList = new ArrayList<>();
         if(moduleList != null) {
-            String prefix1 = "\n  ----> ";
-            String prefix2 = "\n    ----> ";
-            String prefix3 = "\n      ----> ";
+            String prefix = "\n  ----> ";
             for(ModuleInfo module : moduleList) {
                 Map<CompileInfo, List<CompileInfo>> dependencyMap = module.compileMap;
                 if(dependencyMap == null) continue;
 
                 if(dependencyMap.containsKey(curInfo)) {
-                    resultList.add(module.name + prefix1 + curInfo);
+                    resultList.add(module.name + prefix + curInfo);
                 }
                 for(CompileInfo compile : dependencyMap.keySet()) {
-                    if(compile != null && "RxCache".equals(compile.artifact)) {
-                        Logger.info("compile:" + compile);
+                    if(compile != null && compile.artifact.equals("RxCache")) {
+                        Logger.error("compile:" + compile);
                     }
-                    List<CompileInfo> dList = traverseCompile(compile, 1);
+                    List<CompileInfo> dList = traverseCompile(compile, 0);
                     if(dList != null) {
-                        String dependency = module.name + prefix1 + compile;
+                        String dependency = module.name + prefix + compile;
                         int count = 1;
                         for(CompileInfo item : dList) {
                             dependency += "\n  ";
@@ -75,24 +71,11 @@ public class SearchRunnable implements Runnable {
                         }
                         resultList.add(dependency);
                     }
-                    if(compile != null && "RxCache".equals(compile.artifact)) break;
-
-//                    List<CompileInfo> secondCompile = dependencyMap.get(first);
-//                    if(secondCompile == null) continue;
-//
-//                    if(secondCompile.contains(curInfo)) {
-//                        resultList.add(module.name + prefix1 + first + prefix2 + curInfo);
-//                    }
-//                    for(CompileInfo second : secondCompile) {
-//                        if(compileList.contains(second)) {
-//                            resultList.add(module.name + prefix1 + first + prefix2 + second + prefix3 + curInfo);
-//                        }
-//                    }
                 }
             }
         }
         Logger.info("＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝");
-        Logger.info("＝＝＝＝＝＝＝＝＝＝＝＝＝＝  result ＝＝＝＝＝＝＝＝＝＝＝＝＝＝");
+        Logger.info("＝＝＝＝＝＝＝＝＝＝＝＝＝＝  result  ＝＝＝＝＝＝＝＝＝＝＝＝＝");
         Logger.info("＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝");
         for(String result : resultList) {
             Logger.info(result);
@@ -175,20 +158,20 @@ public class SearchRunnable implements Runnable {
         if(info != null) {
             if(info.equals(curInfo)) {
                 relationList = new ArrayList<>();
-                relationList.add(curInfo);
+                relationList.add(info);
             } else {
                 List<CompileInfo> compileList = CheckRunnable.getCompileList(info.toString());
                 if(compileList != null) {
                     for(CompileInfo item : compileList) {
                         if(!item.group.contains("com.squareup")) continue;
 
-                        List<CompileInfo> list = traverseCompile(item, traverseLevel ++);
+                        List<CompileInfo> list = traverseCompile(item, ++ traverseLevel);
                         if(list != null) {
                             if(relationList == null) {
                                 relationList = new ArrayList<>();
                             }
+                            relationList.add(item);
                             relationList.addAll(list);
-                            break;
                         }
                     }
                 }

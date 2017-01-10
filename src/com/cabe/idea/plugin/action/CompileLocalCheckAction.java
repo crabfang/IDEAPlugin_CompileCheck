@@ -2,7 +2,6 @@ package com.cabe.idea.plugin.action;
 
 import com.cabe.idea.plugin.model.CompileInfo;
 import com.cabe.idea.plugin.runnable.SearchRunnable;
-import com.cabe.idea.plugin.setting.SettingForm;
 import com.cabe.idea.plugin.utils.CommonUtils;
 import com.cabe.idea.plugin.utils.Logger;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -76,8 +75,7 @@ public class CompileLocalCheckAction extends AnAction {
             }
         }
 
-        String cache = SettingForm.getLocalCache();
-        Logger.info("compile name --> " + info + " # " + cache);
-        new Thread(new SearchRunnable(projectPath, cache, info)).start();
+        Logger.info("compile name --> " + info);
+        new Thread(new SearchRunnable(projectPath, info)).start();
     }
 }

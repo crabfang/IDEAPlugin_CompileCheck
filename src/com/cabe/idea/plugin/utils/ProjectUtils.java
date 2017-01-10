@@ -82,7 +82,12 @@ public class ProjectUtils {
                         Logger.info(str);
 
                         List<CompileInfo> compileList = CheckRunnable.getCompileList(str);
-                        moduleCompile.put(CompileInfo.parseCompile(str), compileList);
+                        CompileInfo compileInfo = CompileInfo.parseCompile(str);
+                        if(compileInfo != null) {
+                            moduleCompile.put(compileInfo, compileList);
+                        } else {
+                            Logger.error("not compile : " + str);
+                        }
                     }
                 }
             }

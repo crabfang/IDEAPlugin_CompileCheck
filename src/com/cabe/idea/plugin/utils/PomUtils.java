@@ -31,7 +31,7 @@ public class PomUtils {
         if(file.exists() || folder.mkdirs() || file.createNewFile()) {
             content = content.trim();
             if(content.startsWith("<?xml")) {
-                content = content.substring(38);
+                content = content.substring(content.indexOf("<project"));
             } else if(content.startsWith("<html>")) {
                 content = XmlUtils.handleHtml(content);
             }
