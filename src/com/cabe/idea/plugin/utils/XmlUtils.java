@@ -108,7 +108,7 @@ public class XmlUtils {
         return info;
     }
 
-    private static String handleHtml(String html) {
+    public static String handleHtml(String html) {
         html = html.replace("\n", "");
         html = html.replace("&nbsp;", "");
 

@@ -95,6 +95,11 @@ public class CheckRunnable implements Runnable {
     private static String httpGet(String url) {
         String responseStr = "";
         try {
+            if(url.contains("{") || url.contains("[")) {
+                Logger.error("http url error:" + url);
+                return "";
+            }
+
             RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(5000).setConnectTimeout(5000)
                     .setConnectionRequestTimeout(5000).build();
             HttpGet httpGet = new HttpGet(url);

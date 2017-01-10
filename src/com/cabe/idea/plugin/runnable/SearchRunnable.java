@@ -20,53 +20,74 @@ import java.util.Map;
 public class SearchRunnable implements Runnable {
     private String projectPath;
     private String cachePath;
-    private CompileInfo info;
+    private CompileInfo curInfo;
 
-    public SearchRunnable(String projectPath, String cachePath, CompileInfo info) {
+    public SearchRunnable(String projectPath, String cachePath, CompileInfo curInfo) {
         this.projectPath = projectPath;
         this.cachePath = cachePath;
-        this.info = info;
+        this.curInfo = curInfo;
     }
 
     @Override
     public void run() {
         XmlUtils.init();
 
-        List<PomInfo> containList = searchPom(cachePath);
+//        List<PomInfo> containList = searchPom(cachePath);
 
         List<ModuleInfo> moduleList = findModuleCompile(projectPath);
 
-        List<CompileInfo> compileList = new ArrayList<>();
         List<String> resultList = new ArrayList<>();
-        if(containList != null) {
-            for(PomInfo pom : containList) {
-                compileList.add(pom.info);
-                Logger.info("" + pom);
-            }
-        }
+//        List<CompileInfo> compileList = new ArrayList<>();
+//        if(containList != null) {
+//            for(PomInfo pom : containList) {
+//                compileList.add(pom.info);
+//                Logger.info("" + pom);
+//            }
+//        }
         if(moduleList != null) {
-            String prefix1 = "\n  ------> ";
-            String prefix2 = "\n    ------> ";
-            String prefix3 = "\n      ------> ";
+            String prefix1 = "\n  ----> ";
+            String prefix2 = "\n    ----> ";
+            String prefix3 = "\n      ----> ";
             for(ModuleInfo module : moduleList) {
                 Map<CompileInfo, List<CompileInfo>> dependencyMap = module.compileMap;
                 if(dependencyMap == null) continue;
 
-                if(dependencyMap.containsKey(info)) {
-                    resultList.add(module.name + prefix1 + info);
+                if(dependencyMap.containsKey(curInfo)) {
+                    resultList.add(module.name + prefix1 + curInfo);
                 }
-                for(CompileInfo first : dependencyMap.keySet()) {
-                    List<CompileInfo> secondCompile = dependencyMap.get(first);
-                    if(secondCompile == null) continue;
+                for(CompileInfo compile : dependencyMap.keySet()) {
+                    if(compile != null && "RxCache".equals(compile.artifact)) {
+                        Logger.info("compile:" + compile);
+                    }
+                    List<CompileInfo> dList = traverseCompile(compile, 1);
+                    if(dList != null) {
+                        String dependency = module.name + prefix1 + compile;
+                        int count = 1;
+                        for(CompileInfo item : dList) {
+                            dependency += "\n  ";
+                            for(int i=0;i<count;i++) {
+                                dependency += "  ";
+                            }
+                            dependency += "----> ";
+                            dependency += item;
 
-                    if(secondCompile.contains(info)) {
-                        resultList.add(module.name + prefix1 + first + prefix2 + info);
-                    }
-                    for(CompileInfo second : secondCompile) {
-                        if(compileList.contains(second)) {
-                            resultList.add(module.name + prefix1 + first + prefix2 + second + prefix3 + info);
+                            count ++;
                         }
+                        resultList.add(dependency);
                     }
+                    if(compile != null && "RxCache".equals(compile.artifact)) break;
+
+//                    List<CompileInfo> secondCompile = dependencyMap.get(first);
+//                    if(secondCompile == null) continue;
+//
+//                    if(secondCompile.contains(curInfo)) {
+//                        resultList.add(module.name + prefix1 + first + prefix2 + curInfo);
+//                    }
+//                    for(CompileInfo second : secondCompile) {
+//                        if(compileList.contains(second)) {
+//                            resultList.add(module.name + prefix1 + first + prefix2 + second + prefix3 + curInfo);
+//                        }
+//                    }
                 }
             }
         }
@@ -134,7 +155,7 @@ public class SearchRunnable implements Runnable {
             if(name.endsWith("pom")) {
                 PomInfo pomInfo = XmlUtils.parsePom4All(file);
                 if(pomInfo != null) {
-                    if(pomInfo.dependency(info)) {
+                    if(pomInfo.dependency(curInfo)) {
                         pomList.add(pomInfo);
                     }
                     Logger.info("" + pomInfo.info);
@@ -142,5 +163,37 @@ public class SearchRunnable implements Runnable {
             }
         }
         return pomList;
+    }
+
+    private List<CompileInfo> traverseCompile(CompileInfo info, int traverseLevel) {
+        Logger.info("cur traverse level : " + traverseLevel + " -->" + info);
+        if(traverseLevel > 10) {
+            return null;
+        }
+
+        List<CompileInfo> relationList = null;
+        if(info != null) {
+            if(info.equals(curInfo)) {
+                relationList = new ArrayList<>();
+                relationList.add(curInfo);
+            } else {
+                List<CompileInfo> compileList = CheckRunnable.getCompileList(info.toString());
+                if(compileList != null) {
+                    for(CompileInfo item : compileList) {
+                        if(!item.group.contains("com.squareup")) continue;
+
+                        List<CompileInfo> list = traverseCompile(item, traverseLevel ++);
+                        if(list != null) {
+                            if(relationList == null) {
+                                relationList = new ArrayList<>();
+                            }
+                            relationList.addAll(list);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return relationList;
     }
 }

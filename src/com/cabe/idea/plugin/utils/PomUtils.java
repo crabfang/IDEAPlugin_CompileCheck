@@ -29,7 +29,12 @@ public class PomUtils {
         File file = new File(filePath);
         File folder = file.getParentFile();
         if(file.exists() || folder.mkdirs() || file.createNewFile()) {
-            content = content.substring(38);
+            content = content.trim();
+            if(content.startsWith("<?xml")) {
+                content = content.substring(38);
+            } else if(content.startsWith("<html>")) {
+                content = XmlUtils.handleHtml(content);
+            }
             FileWriter fw = new FileWriter(filePath);
             BufferedWriter bw = new BufferedWriter(fw);
             bw.newLine();

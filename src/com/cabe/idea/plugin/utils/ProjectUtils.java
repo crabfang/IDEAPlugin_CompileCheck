@@ -7,7 +7,7 @@ import org.apache.http.util.TextUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +16,7 @@ import java.util.Map;
  * Created by cabe on 17/1/7.
  */
 public class ProjectUtils {
-    private static Map<String, String> extMap = new HashMap<>();
+    private static Map<String, String> extMap = new LinkedHashMap<>();
 
     public static boolean isModule(String path) {
         String gradleFile = path + "/build.gradle";
@@ -44,7 +44,7 @@ public class ProjectUtils {
     }
 
     public static Map<CompileInfo, List<CompileInfo>> readModuleGradle(String modulePath) {
-        Map<CompileInfo, List<CompileInfo>> moduleCompile = new HashMap<>();
+        Map<CompileInfo, List<CompileInfo>> moduleCompile = new LinkedHashMap<>();
         try {
             FileReader fr =  new FileReader(modulePath + "/build.gradle");
             BufferedReader br = new BufferedReader(fr);
@@ -95,7 +95,7 @@ public class ProjectUtils {
     }
 
     private static Map<String, String> readExtConfig(String gradlePath) {
-        Map<String, String> extMap = new HashMap<>();
+        Map<String, String> extMap = new LinkedHashMap<>();
         try {
             FileReader fr =  new FileReader(gradlePath);
             BufferedReader br = new BufferedReader(fr);

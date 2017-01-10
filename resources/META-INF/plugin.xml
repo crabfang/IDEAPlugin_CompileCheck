@@ -40,7 +40,7 @@
       <add-to-group group-id="AnalyzeMenu" anchor="first"/>
       <add-to-group group-id="ProjectViewAnalysisGroup" anchor="after" relative-to-action="ProjectViewPopupMenu"/>
     </action>
-    <action id="CompileLocalCheck" class="com.cabe.idea.plugin.action.CompileLocalCheck" text="Check Local Compile" description="Compile Local Check">
+    <action id="CompileLocalCheck" class="com.cabe.idea.plugin.action.CompileLocalCheckAction" text="Check Local Compile" description="Compile Local Check">
       <add-to-group group-id="AnalyzeMenu" anchor="first"/>
       <add-to-group group-id="ProjectViewAnalysisGroup" anchor="after" relative-to-action="ProjectViewPopupMenu"/>
     </action>

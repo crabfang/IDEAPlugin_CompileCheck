@@ -20,7 +20,7 @@ import org.apache.http.util.TextUtils;
  * Local Compile Check
  * Created by cabe on 17/1/6.
  */
-public class CompileLocalCheck extends AnAction {
+public class CompileLocalCheckAction extends AnAction {
     @Override
     public void update(AnActionEvent event) {
         Project project = event.getProject();
