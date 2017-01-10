@@ -36,8 +36,7 @@ public class ProjectRunnable implements Runnable {
 
 
         if(ProjectUtils.isModule(modulePath)) {
-            String gradleFile = modulePath + "/build.gradle";
-            Map<CompileInfo, List<CompileInfo>> map = ProjectUtils.readModuleGradle(gradleFile);
+            Map<CompileInfo, List<CompileInfo>> map = ProjectUtils.readModuleGradle(modulePath);
             showResult(map);
         } else {
             String tips = "this folder is not an android project";
