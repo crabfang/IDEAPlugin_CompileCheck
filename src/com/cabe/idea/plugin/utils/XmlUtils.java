@@ -2,9 +2,11 @@ package com.cabe.idea.plugin.utils;
 
 import com.cabe.idea.plugin.model.CompileInfo;
 import com.cabe.idea.plugin.model.PomInfo;
+import org.apache.http.util.TextUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -121,6 +123,27 @@ public class XmlUtils {
         return html;
     }
 
+    private static String parsePlaceHolder(Document doc, String placeHolder) {
+        if(doc == null || TextUtils.isEmpty(placeHolder)) return placeHolder;
+
+        String val = null;
+        placeHolder = placeHolder.replace("${", "");
+        placeHolder = placeHolder.replace("}", "");
+        NodeList nodeList = doc.getElementsByTagName(placeHolder);
+        if(nodeList != null && nodeList.getLength() > 0) {
+            Node node = nodeList.item(0);
+            val = node.getTextContent();
+        } else {
+            String key = placeHolder.replace("project.", "");
+            nodeList = doc.getElementsByTagName(key);
+            if(nodeList != null && nodeList.getLength() > 0) {
+                Node node = nodeList.item(0);
+                val = node.getTextContent();
+            }
+        }
+        return TextUtils.isEmpty(val) ? placeHolder : val;
+    }
+
     public static List<CompileInfo> parsePom4DependencyWithFile(String xmlPath) {
         List<CompileInfo> compileList = new ArrayList<>();
         Document document;
@@ -132,6 +155,13 @@ public class XmlUtils {
 
             NodeList nodeList = document.getElementsByTagName("dependency");
             compileList = parseDependency(nodeList);
+            if(compileList != null) {
+                for(CompileInfo item : compileList) {
+                    if(item.version != null && item.version.contains("$")) {
+                        item.version = parsePlaceHolder(document, item.version);
+                    }
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -156,6 +186,13 @@ public class XmlUtils {
 
             NodeList nodeList = document.getElementsByTagName("dependency");
             compileList = parseDependency(nodeList);
+            if(compileList != null) {
+                for(CompileInfo item : compileList) {
+                    if(item.version != null && item.version.contains("$")) {
+                        item.version = parsePlaceHolder(document, item.version);
+                    }
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
