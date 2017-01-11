@@ -1,5 +1,6 @@
 package com.cabe.idea.plugin.action;
 
+import com.cabe.idea.plugin.dialog.CompileCheckDialog;
 import com.cabe.idea.plugin.model.CompileInfo;
 import com.cabe.idea.plugin.runnable.SearchRunnable;
 import com.cabe.idea.plugin.utils.CommonUtils;
@@ -59,6 +60,10 @@ public class CompileLocalCheckAction extends AnAction {
         }
 
         Logger.info("compile name --> " + info);
-        new Thread(new SearchRunnable(projectPath, info)).start();
+        if(info != null) {
+            new Thread(new SearchRunnable(projectPath, info)).start();
+        } else {
+            CompileCheckDialog.showDialog("this is not a repository");
+        }
     }
 }

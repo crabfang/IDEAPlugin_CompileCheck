@@ -67,6 +67,12 @@ public class CompileCheckDialog extends JDialog {
         }
     }
 
+    public static void showDialog(String tips) {
+        CompileCheckDialog dialog = new CompileCheckDialog();
+        dialog.setLabel(tips);
+        dialog.setVisible(true);
+    }
+
     public static void main(String[] args) {
         CompileCheckDialog dialog = new CompileCheckDialog();
         dialog.pack();

@@ -32,10 +32,7 @@ public class ProjectRunnable implements Runnable {
         if(TextUtils.isEmpty(modulePath)) {
             String tips = "file path is none";
             Logger.info(tips);
-
-            CompileCheckDialog dialog = new CompileCheckDialog();
-            dialog.setLabel(tips);
-            dialog.setVisible(true);
+            CompileCheckDialog.showDialog(tips);
             return;
         }
 
@@ -44,12 +41,9 @@ public class ProjectRunnable implements Runnable {
             Map<CompileInfo, List<CompileInfo>> map = ProjectUtils.readModuleGradle(modulePath);
             showResult(map);
         } else {
-            String tips = "this folder is not an android project";
+            String tips = "this is not a module";
             Logger.info(tips);
-
-            CompileCheckDialog dialog = new CompileCheckDialog();
-            dialog.setLabel(tips);
-            dialog.setVisible(true);
+            CompileCheckDialog.showDialog(tips);
         }
         XmlUtils.release();
     }

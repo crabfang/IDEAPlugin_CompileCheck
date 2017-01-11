@@ -1,12 +1,16 @@
 package com.cabe.idea.plugin.action;
 
+import com.cabe.idea.plugin.dialog.CompileCheckDialog;
 import com.cabe.idea.plugin.runnable.ProjectRunnable;
 import com.cabe.idea.plugin.utils.CommonUtils;
 import com.cabe.idea.plugin.utils.Logger;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+
+import java.io.File;
 
 /**
  * Project Compile Check
@@ -25,14 +29,26 @@ public class CompileCheckProjectAction extends AnAction {
 
     private void handleEvent(AnActionEvent event) {
         String projectPath = "";
-        VirtualFile virtualFile = event.getData(PlatformDataKeys.VIRTUAL_FILE);
-        if(virtualFile != null) {
-            projectPath = virtualFile.getPath();
+        Project project = event.getData(PlatformDataKeys.PROJECT);
+        if(project != null) {
+            projectPath = project.getBasePath();
         }
 
-        String[] group = projectPath.split("/");
-        String projectName = group[group.length - 1];
-        Logger.info(projectName + "-->" + projectPath);
-        new Thread(new ProjectRunnable(projectPath)).start();
+        String modulePath = "";
+        VirtualFile virtualFile = event.getData(PlatformDataKeys.VIRTUAL_FILE);
+        if(virtualFile != null) {
+            modulePath = virtualFile.getPath();
+        }
+
+        String[] group = modulePath.split("/");
+        String moduleName = group[group.length - 1];
+        Logger.info(moduleName + "-->" + modulePath);
+
+        File file = new File(modulePath);
+        if(file.isDirectory() && file.getParent().equals(projectPath)) {
+            new Thread(new ProjectRunnable(modulePath)).start();
+        } else {
+            CompileCheckDialog.showDialog("this is not a module");
+        }
     }
 }
