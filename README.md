@@ -6,6 +6,8 @@
 
 <img src="./screenshot/screenshot_setting.png"  width="613" height="400"/>
 
+LocalFilter是用来过滤解析反向依赖的关键字，例如：apache,springframework，表示解析的时候，过滤包含apache或者springframework的aar
+
 #### 依赖库的反向依赖关系查询
 
 选择需要解析的依赖库，比如“RxCache1.2”，
