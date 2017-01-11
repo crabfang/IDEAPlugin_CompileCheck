@@ -27,3 +27,10 @@
 右键点击“Compile Check”，之后就会显示该库所依赖的第三方库了<br/>
 <img src="./screenshot/screenshot_method_for_compile.png"  width="570" height="580"/><br/>
 <img src="./screenshot/screenshot_result_for_compile.png"  width="566" height="333"/>
+
+## PS
+
+该工具暂时还有一些问题：
+1、一些pom的解析还不完善，比如一些dependency的库没有version字段，就没去获取最新的版本之类的
+2、IDEA的gradle配置还法获取，只能依赖用户自己设置
+3、解析结果的弹窗，在多个屏幕时现实不够友好，只会显示在默认的屏幕上
