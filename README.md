@@ -1,3 +1,10 @@
+## 简介
+
+CompileCheck是一个用于查询通过gradle构建的Module所依赖的远程库的插件，主要有三个功能：<br/>
+1、根据远程库查询当前库的依赖库<br/>
+2、查询Module所依赖的远程库关系<br/>
+3、根据扩展库查找该库在当前Project里的引用关系
+
 ## Usage
 
 首先，安装插件“CompileCheck”并重启IDE
