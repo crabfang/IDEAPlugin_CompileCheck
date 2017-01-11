@@ -4,12 +4,15 @@ import com.cabe.idea.plugin.dialog.CompileCheckDialog;
 import com.cabe.idea.plugin.model.CompileInfo;
 import com.cabe.idea.plugin.model.ModuleInfo;
 import com.cabe.idea.plugin.model.PomInfo;
+import com.cabe.idea.plugin.setting.SettingForm;
 import com.cabe.idea.plugin.utils.Logger;
 import com.cabe.idea.plugin.utils.ProjectUtils;
 import com.cabe.idea.plugin.utils.XmlUtils;
+import org.apache.http.util.TextUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,50 +42,32 @@ public class SearchRunnable implements Runnable {
 //            }
 //        }
 
+        getFilters();
+        resultTips = "";
         List<ModuleInfo> moduleList = findModuleCompile(projectPath);
-
-        List<String> resultList = new ArrayList<>();
         if(moduleList != null) {
-            String prefix = "\n  ----> ";
             for(ModuleInfo module : moduleList) {
                 Map<CompileInfo, List<CompileInfo>> dependencyMap = module.compileMap;
                 if(dependencyMap == null) continue;
 
-                if(dependencyMap.containsKey(curInfo)) {
-                    resultList.add(module.name + prefix + curInfo);
-                }
+                Logger.info("cur module : " + module.name + ">>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                curModule = module.name;
                 for(CompileInfo compile : dependencyMap.keySet()) {
                     if(compile != null && compile.artifact.equals("RxCache")) {
                         Logger.error("compile:" + compile);
                     }
-                    List<CompileInfo> dList = traverseCompile(compile, 0);
-                    if(dList != null) {
-                        String dependency = module.name + prefix + compile;
-                        int count = 1;
-                        for(CompileInfo item : dList) {
-                            dependency += "\n  ";
-                            for(int i=0;i<count;i++) {
-                                dependency += "  ";
-                            }
-                            dependency += "----> ";
-                            dependency += item;
-
-                            count ++;
-                        }
-                        resultList.add(dependency);
-                    }
+                    List<CompileInfo> relationList = new LinkedList<>();
+                    traverseCompile(compile, 0, relationList);
                 }
             }
         }
         Logger.info("＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝");
         Logger.info("＝＝＝＝＝＝＝＝＝＝＝＝＝＝  result  ＝＝＝＝＝＝＝＝＝＝＝＝＝");
         Logger.info("＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝");
-        for(String result : resultList) {
-            Logger.info(result);
-        }
 
         CompileCheckDialog dialog = new CompileCheckDialog();
-        dialog.setLabel(resultList);
+        dialog.updateDialogWidth(maxLineLen);
+        dialog.setLabel(resultTips);
         dialog.setVisible(true);
 
         XmlUtils.release();
@@ -112,6 +97,72 @@ public class SearchRunnable implements Runnable {
             }
         }
         return moduleList;
+    }
+
+    private void getFilters() {
+        String filterConfig = SettingForm.getLocalFilter();
+        if(!TextUtils.isEmpty(filterConfig)) {
+            filters = filterConfig.split(",");
+        }
+    }
+
+    private boolean isFilter(String str) {
+        if(filters != null) {
+            for(String f : filters) {
+                if(str.contains(f)) {
+                   return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private int maxLineLen = 0;
+    private String resultTips = "";
+    private String curModule = "";
+    private String[] filters = null;
+    private boolean traverseCompile(CompileInfo info, int traverseLevel, List<CompileInfo> relationList) {
+        int maxLevel = SettingForm.getLocalLevel();
+        if(traverseLevel > maxLevel || info == null) return false;
+
+        Logger.info("cur traverse level : " + traverseLevel + " ------> " + info);
+
+        relationList.add(info);
+        if(info.equals(curInfo)) return true;
+
+        if(isFilter(info.toString())) return false;
+
+        boolean isContainer = false;
+        List<CompileInfo> compileList = CheckRunnable.getCompileList(info.toString());
+        if(compileList != null) {
+            int newLevel = traverseLevel + 1;
+            for(CompileInfo item : compileList) {
+                List<CompileInfo> tmpList = new LinkedList<>(relationList);
+                isContainer = traverseCompile(item, newLevel, tmpList);
+
+                if(tmpList.contains(curInfo)) {
+                    String relationStr = curModule + "\n";
+                    for(int i=0;i<tmpList.size();i++) {
+                        String lineStr = "";
+                        CompileInfo ii = tmpList.get(i);
+                        for(int j=0;j<i;j++) {
+                            lineStr += "     ";
+                        }
+                        lineStr += "------>" + ii;
+                        if(lineStr.length() > maxLineLen) {
+                            maxLineLen = lineStr.length();
+                        }
+                        relationStr += lineStr + "\n";
+                    }
+                    Logger.info("relation : \n" + relationStr);
+                    resultTips += relationStr;
+                }
+                if(tmpList.size() > relationList.size()) {
+                    tmpList.remove(tmpList.size() - 1);
+                }
+            }
+        }
+        return isContainer;
     }
 
     private List<PomInfo> searchPom(String cachePath) {
@@ -146,37 +197,5 @@ public class SearchRunnable implements Runnable {
             }
         }
         return pomList;
-    }
-
-    private List<CompileInfo> traverseCompile(CompileInfo info, int traverseLevel) {
-        Logger.info("cur traverse level : " + traverseLevel + " -->" + info);
-        if(traverseLevel > 10) {
-            return null;
-        }
-
-        List<CompileInfo> relationList = null;
-        if(info != null) {
-            if(info.equals(curInfo)) {
-                relationList = new ArrayList<>();
-                relationList.add(info);
-            } else {
-                List<CompileInfo> compileList = CheckRunnable.getCompileList(info.toString());
-                if(compileList != null) {
-                    for(CompileInfo item : compileList) {
-                        if(!item.group.contains("com.squareup")) continue;
-
-                        List<CompileInfo> list = traverseCompile(item, ++ traverseLevel);
-                        if(list != null) {
-                            if(relationList == null) {
-                                relationList = new ArrayList<>();
-                            }
-                            relationList.add(item);
-                            relationList.addAll(list);
-                        }
-                    }
-                }
-            }
-        }
-        return relationList;
     }
 }

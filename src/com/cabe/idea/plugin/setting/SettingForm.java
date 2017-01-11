@@ -3,6 +3,7 @@ package com.cabe.idea.plugin.setting;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import org.apache.http.util.TextUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,11 +17,15 @@ public class SettingForm implements Configurable {
     private final static String KEY_CUSTOM_PATH = "keyCustomHost";
     private final static String KEY_LOCAL_CACHE = "keyLocalCache";
     private final static String KEY_COMPILE_LEVEL = "keyCompileLevel";
+    private final static String KEY_LOCAL_LEVEL = "keyLocalLevel";
+    private final static String KEY_LOCAL_FILTER = "keyLocalFilter";
 
     private JPanel rootPanel;
     private JTextField customPath;
     private JTextField localCache;
     private JTextField compileLevel;
+    private JTextField localLevel;
+    private JTextField localFilter;
 
     @Nls
     @Override
@@ -53,8 +58,14 @@ public class SettingForm implements Configurable {
         String cache = localCache.getText();
         setLocalCache(cache);
 
-        String level = compileLevel.getText();
-        setCompileLevel(level);
+        String compileLevelStr = compileLevel.getText();
+        setCompileLevel(compileLevelStr);
+
+        String localLevelStr = localLevel.getText();
+        setLocalLevel(localLevelStr);
+
+        String localFilterStr = localFilter.getText();
+        setLocalFilter(localFilterStr);
     }
 
     @Override
@@ -65,8 +76,14 @@ public class SettingForm implements Configurable {
         String cache = getLocalCache();
         localCache.setText(cache);
 
-        String level = getCompileLevel() + "";
-        compileLevel.setText(level);
+        String compileLevelStr = getCompileLevel() + "";
+        compileLevel.setText(compileLevelStr);
+
+        String localLevelStr = getLocalLevel() + "";
+        localLevel.setText(localLevelStr);
+
+        String localFilterStr = getLocalFilter();
+        localFilter.setText(localFilterStr);
     }
 
     private static void setCustomPath(String customHost) {
@@ -102,6 +119,36 @@ public class SettingForm implements Configurable {
             level = defaultLevel;
         }
         return level;
+    }
+
+    private static void setLocalLevel(String localLevel) {
+        PropertiesComponent.getInstance().setValue(KEY_LOCAL_LEVEL, localLevel);
+    }
+
+    public static int getLocalLevel() {
+        int defaultLevel = 4;
+        int level = defaultLevel;
+        try {
+            String strLevel = PropertiesComponent.getInstance().getValue(KEY_LOCAL_LEVEL, "" + defaultLevel);
+            level = Integer.parseInt(strLevel);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(level < defaultLevel) {
+            level = defaultLevel;
+        }
+        return level;
+    }
+
+    private static void setLocalFilter(String localFilter) {
+        if(!TextUtils.isEmpty(localFilter)) {
+            localFilter = localFilter.replace(" ", "");
+        }
+        PropertiesComponent.getInstance().setValue(KEY_LOCAL_FILTER, localFilter);
+    }
+
+    public static String getLocalFilter() {
+        return PropertiesComponent.getInstance().getValue(KEY_LOCAL_FILTER, "");
     }
 
     @Override
