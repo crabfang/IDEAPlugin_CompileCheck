@@ -3,6 +3,7 @@ package com.cabe.idea.plugin.runnable;
 import com.cabe.idea.plugin.dialog.CompileCheckDialog;
 import com.cabe.idea.plugin.model.CompileInfo;
 import com.cabe.idea.plugin.setting.SettingForm;
+import com.cabe.idea.plugin.utils.CommonUtils;
 import com.cabe.idea.plugin.utils.Logger;
 import com.cabe.idea.plugin.utils.ProjectUtils;
 import com.intellij.openapi.application.ApplicationManager;
@@ -18,6 +19,7 @@ import java.util.Set;
  */
 public class ProjectRunnable implements Runnable {
     private String modulePath;
+    private long deltaTime;
 
     public ProjectRunnable(String path) {
         modulePath = path;
@@ -35,7 +37,7 @@ public class ProjectRunnable implements Runnable {
             return;
         }
 
-
+        deltaTime = System.currentTimeMillis();
         if(ProjectUtils.isModule(modulePath)) {
             Map<CompileInfo, List<CompileInfo>> map = ProjectUtils.readModuleGradle(modulePath);
             showResult(map);
@@ -56,10 +58,7 @@ public class ProjectRunnable implements Runnable {
         if(level > SettingForm.getCompileLevel()) return;
 
         String tips = "";
-        for(int i=0;i<level;i++) {
-            tips += "       ";
-        }
-        tips += "---->" + info;
+        tips += CommonUtils.createLevelPrefix(level) + info;
         resultTips += tips + "\n";
         if(tips.length() > maxLineLen) {
             maxLineLen = tips.length();
@@ -82,37 +81,13 @@ public class ProjectRunnable implements Runnable {
             Set<CompileInfo> keySet = map.keySet();
             for(CompileInfo key : keySet) {
                 traverseCompile(key, 0);
-//                String keyStr = key.toString();
-//                List<CompileInfo> list = map.get(key);
-//                resultTips += key + "\n";
-//                if(keyStr.length() > maxLineLen) {
-//                    maxLineLen = keyStr.length();
-//                }
-//                if(list != null && !list.isEmpty()) {
-//                    String place = "      ";
-//                    for(CompileInfo compile : list) {
-//                        String str = place + compile;
-//                        resultTips += str + "\n";
-//                        if(str.length() > maxLineLen) {
-//                            maxLineLen = str.length();
-//                        }
-//                        List<CompileInfo> ll = CheckRunnable.getCompileList(compile.toString());
-//                        if(ll != null) {
-//                            for(CompileInfo item : ll) {
-//                                String str1 = place + place + item;
-//                                resultTips += str1 + "\n";
-//                                if(str1.length() > maxLineLen) {
-//                                    maxLineLen = str1.length();
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
             }
         } else {
             resultTips += "check no result\n";
         }
         Logger.info(resultTips);
+        deltaTime = System.currentTimeMillis() - deltaTime;
+        Logger.info("elapsed time : " + deltaTime);
 
         ApplicationManager.getApplication().invokeLater(() -> {
             CompileCheckDialog dialog = new CompileCheckDialog();

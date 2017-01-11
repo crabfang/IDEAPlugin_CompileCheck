@@ -3,10 +3,12 @@ package com.cabe.idea.plugin.runnable;
 import com.cabe.idea.plugin.dialog.CompileCheckDialog;
 import com.cabe.idea.plugin.model.CompileInfo;
 import com.cabe.idea.plugin.setting.SettingForm;
+import com.cabe.idea.plugin.utils.CommonUtils;
 import com.cabe.idea.plugin.utils.Logger;
 import com.cabe.idea.plugin.utils.PomUtils;
 import com.cabe.idea.plugin.utils.XmlUtils;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.projectRoots.Sdk;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -74,17 +76,23 @@ public class CheckRunnable implements Runnable {
         if(cache.exists()) {
             compileList = XmlUtils.parsePom4DependencyWithFile(pomCache);
         } else {
-            List<String> urlList = getUrlList(aarInfo);
-            for(String url : urlList) {
-                String response = httpGet(url);
-                if(!TextUtils.isEmpty(response)) {
-                    compileList = XmlUtils.parsePom4Dependency(response);
-                    try {
-                        PomUtils.savePom(aarInfo, response);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+            if(aarInfo.contains("com.android")) {
+                String androidPom = getLocalAndroidPomPath(aarInfo);
+                Logger.info("local android pom : " + androidPom);
+                compileList = XmlUtils.parsePom4DependencyWithFile(androidPom);
+            } else {
+                List<String> urlList = getUrlList(aarInfo);
+                for(String url : urlList) {
+                    String response = httpGet(url);
+                    if(!TextUtils.isEmpty(response)) {
+                        compileList = XmlUtils.parsePom4Dependency(response);
+                        try {
+                            PomUtils.savePom(aarInfo, response);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
@@ -154,5 +162,35 @@ public class CheckRunnable implements Runnable {
             }
         }
         return url;
+    }
+
+    private static String getLocalAndroidPomPath(String aarInfo) {
+        if(TextUtils.isEmpty(aarInfo)) return null;
+
+        String pom = "";
+        Sdk sdk = CommonUtils.findAndroidSDK();
+        if(sdk != null) {
+            pom = sdk.getHomePath();
+            pom += "/extras/android/m2repository";
+        }
+        return pom + parseAarInfo2Path(aarInfo);
+    }
+
+    private static String parseAarInfo2Path(String aarInfo) {
+        if(TextUtils.isEmpty(aarInfo)) return "";
+
+        String path = "";
+        String[] aarArray = aarInfo.split(":");
+        if(aarArray.length > 2) {
+            String groupId = aarArray[0];
+            String artifactId = aarArray[1];
+            String version = aarArray[2];
+            for(String item : groupId.split("\\.")) {
+                path += "/" + item;
+            }
+            path += "/" + artifactId + "/" + version + "/";
+            path += String.format("%s-%s.pom", artifactId, version);
+        }
+        return path;
     }
 }

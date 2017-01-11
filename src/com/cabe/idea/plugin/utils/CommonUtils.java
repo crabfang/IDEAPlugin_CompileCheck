@@ -107,4 +107,13 @@ public class CommonUtils {
             fw.close();
         }
     }
+
+    public static String createLevelPrefix(int level) {
+        String prefix = "";
+        for(int i=0;i<level;i++) {
+            prefix += "         ";
+        }
+        prefix += "---->";
+        return prefix;
+    }
 }

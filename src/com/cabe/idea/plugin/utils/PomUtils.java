@@ -14,7 +14,7 @@ import java.util.Locale;
 public class PomUtils {
 
     private static String getPomFolderPath() {
-        return SettingForm.getLocalCache() + "/pom";
+        return SettingForm.getGradleCache() + "/caches/modules-2/files-2.1/pom";
     }
 
     public static String createPomFilePath(String aarInfo) {

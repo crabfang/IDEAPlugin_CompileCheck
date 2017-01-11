@@ -5,6 +5,7 @@ import com.cabe.idea.plugin.model.CompileInfo;
 import com.cabe.idea.plugin.model.ModuleInfo;
 import com.cabe.idea.plugin.model.PomInfo;
 import com.cabe.idea.plugin.setting.SettingForm;
+import com.cabe.idea.plugin.utils.CommonUtils;
 import com.cabe.idea.plugin.utils.Logger;
 import com.cabe.idea.plugin.utils.ProjectUtils;
 import com.cabe.idea.plugin.utils.XmlUtils;
@@ -42,6 +43,7 @@ public class SearchRunnable implements Runnable {
 //            }
 //        }
 
+        long deltaTime = System.currentTimeMillis();
         getFilters();
         resultTips = "";
         List<ModuleInfo> moduleList = findModuleCompile(projectPath);
@@ -61,9 +63,12 @@ public class SearchRunnable implements Runnable {
                 }
             }
         }
+        deltaTime = System.currentTimeMillis() - deltaTime;
+        Logger.info("elapsed time : " + deltaTime);
         Logger.info("＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝");
         Logger.info("＝＝＝＝＝＝＝＝＝＝＝＝＝＝  result  ＝＝＝＝＝＝＝＝＝＝＝＝＝");
         Logger.info("＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝");
+        Logger.info(resultTips);
 
         CompileCheckDialog dialog = new CompileCheckDialog();
         dialog.updateDialogWidth(maxLineLen);
@@ -142,13 +147,9 @@ public class SearchRunnable implements Runnable {
 
                 if(tmpList.contains(curInfo)) {
                     String relationStr = curModule + "\n";
-                    for(int i=0;i<tmpList.size();i++) {
+                    for(CompileInfo ii : tmpList) {
                         String lineStr = "";
-                        CompileInfo ii = tmpList.get(i);
-                        for(int j=0;j<i;j++) {
-                            lineStr += "     ";
-                        }
-                        lineStr += "------>" + ii;
+                        lineStr += CommonUtils.createLevelPrefix(traverseLevel) + ii;
                         if(lineStr.length() > maxLineLen) {
                             maxLineLen = lineStr.length();
                         }

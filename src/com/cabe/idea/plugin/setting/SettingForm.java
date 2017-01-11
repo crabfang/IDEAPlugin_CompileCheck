@@ -15,14 +15,14 @@ import javax.swing.*;
  */
 public class SettingForm implements Configurable {
     private final static String KEY_CUSTOM_PATH = "keyCustomHost";
-    private final static String KEY_LOCAL_CACHE = "keyLocalCache";
+    private final static String KEY_GRADLE_CACHE = "keyLocalCache";
     private final static String KEY_COMPILE_LEVEL = "keyCompileLevel";
     private final static String KEY_LOCAL_LEVEL = "keyLocalLevel";
     private final static String KEY_LOCAL_FILTER = "keyLocalFilter";
 
     private JPanel rootPanel;
     private JTextField customPath;
-    private JTextField localCache;
+    private JTextField gradleCache;
     private JTextField compileLevel;
     private JTextField localLevel;
     private JTextField localFilter;
@@ -55,8 +55,8 @@ public class SettingForm implements Configurable {
         String path = customPath.getText();
         setCustomPath(path);
 
-        String cache = localCache.getText();
-        setLocalCache(cache);
+        String cache = gradleCache.getText();
+        setGradleCache(cache);
 
         String compileLevelStr = compileLevel.getText();
         setCompileLevel(compileLevelStr);
@@ -73,8 +73,8 @@ public class SettingForm implements Configurable {
         String path = getCustomPath();
         customPath.setText(path);
 
-        String cache = getLocalCache();
-        localCache.setText(cache);
+        String cache = getGradleCache();
+        gradleCache.setText(cache);
 
         String compileLevelStr = getCompileLevel() + "";
         compileLevel.setText(compileLevelStr);
@@ -94,12 +94,12 @@ public class SettingForm implements Configurable {
         return PropertiesComponent.getInstance().getValue(KEY_CUSTOM_PATH, "");
     }
 
-    private static void setLocalCache(String localCache) {
-        PropertiesComponent.getInstance().setValue(KEY_LOCAL_CACHE, localCache);
+    private static void setGradleCache(String gradleCache) {
+        PropertiesComponent.getInstance().setValue(KEY_GRADLE_CACHE, gradleCache);
     }
 
-    public static String getLocalCache() {
-        return PropertiesComponent.getInstance().getValue(KEY_LOCAL_CACHE, "");
+    public static String getGradleCache() {
+        return PropertiesComponent.getInstance().getValue(KEY_GRADLE_CACHE, "");
     }
 
     private static void setCompileLevel(String compileLevel) {
