@@ -117,6 +117,21 @@ public class SearchRunnable implements Runnable {
         return false;
     }
 
+    private void createRelationStr(List<CompileInfo> list) {
+        String relationStr = curModule + "\n";
+        for(int i=0;i<list.size();i++) {
+            CompileInfo ii = list.get(i);
+            String lineStr = "";
+            lineStr += CommonUtils.createLevelPrefix(i) + ii;
+            if(lineStr.length() > maxLineLen) {
+                maxLineLen = lineStr.length();
+            }
+            relationStr += lineStr + "\n";
+        }
+        Logger.info("relation : \n" + relationStr);
+        resultTips += relationStr;
+    }
+
     private int maxLineLen = 0;
     private String resultTips = "";
     private String curModule = "";
@@ -128,7 +143,12 @@ public class SearchRunnable implements Runnable {
         Logger.info("cur traverse level : " + traverseLevel + " ------> " + info);
 
         relationList.add(info);
-        if(info.equals(curInfo)) return true;
+        if(info.equals(curInfo)) {
+            if(traverseLevel == 0) {
+                createRelationStr(relationList);
+            }
+            return true;
+        }
 
         if(isFilter(info.toString())) return false;
 
@@ -141,18 +161,7 @@ public class SearchRunnable implements Runnable {
                 isContainer = traverseCompile(item, newLevel, tmpList);
 
                 if(tmpList.contains(curInfo)) {
-                    String relationStr = curModule + "\n";
-                    for(int i=0;i<tmpList.size();i++) {
-                        CompileInfo ii = tmpList.get(i);
-                        String lineStr = "";
-                        lineStr += CommonUtils.createLevelPrefix(i) + ii;
-                        if(lineStr.length() > maxLineLen) {
-                            maxLineLen = lineStr.length();
-                        }
-                        relationStr += lineStr + "\n";
-                    }
-                    Logger.info("relation : \n" + relationStr);
-                    resultTips += relationStr;
+                    createRelationStr(tmpList);
                 }
                 if(tmpList.size() > relationList.size()) {
                     tmpList.remove(tmpList.size() - 1);

@@ -87,7 +87,6 @@ public class CommonUtils {
     public static Sdk findAndroidSDK() {
         Sdk[] allJDKs = ProjectJdkTable.getInstance().getAllJdks();
         for (Sdk sdk : allJDKs) {
-            Logger.info("sdk : " + sdk.getSdkType().getName());
             if (sdk.getSdkType().getName().toLowerCase().contains("android")) {
                 return sdk;
             }

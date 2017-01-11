@@ -79,7 +79,6 @@ public class CheckRunnable implements Runnable {
         } else {
             if(aarInfo.contains("com.android")) {
                 String androidPom = getLocalAndroidPomPath(aarInfo);
-                Logger.info("local android pom : " + androidPom);
                 compileList = XmlUtils.parsePom4DependencyWithFile(androidPom);
             } else {
                 if(!aarInfo.contains("null")) {
