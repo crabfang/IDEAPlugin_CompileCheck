@@ -32,8 +32,6 @@ public class SearchRunnable implements Runnable {
 
     @Override
     public void run() {
-        XmlUtils.init();
-
 //        List<PomInfo> containList = searchPom(cachePath);
 //        List<CompileInfo> compileList = new ArrayList<>();
 //        if(containList != null) {
@@ -43,6 +41,7 @@ public class SearchRunnable implements Runnable {
 //            }
 //        }
 
+        XmlUtils.init();
         long deltaTime = System.currentTimeMillis();
         getFilters();
         resultTips = "";
@@ -65,16 +64,12 @@ public class SearchRunnable implements Runnable {
         }
         deltaTime = System.currentTimeMillis() - deltaTime;
         Logger.info("elapsed time : " + deltaTime);
-        Logger.info("＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝");
-        Logger.info("＝＝＝＝＝＝＝＝＝＝＝＝＝＝  result  ＝＝＝＝＝＝＝＝＝＝＝＝＝");
-        Logger.info("＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝");
         Logger.info(resultTips);
 
         CompileCheckDialog dialog = new CompileCheckDialog();
         dialog.updateDialogWidth(maxLineLen);
         dialog.setLabel(resultTips);
         dialog.setVisible(true);
-
         XmlUtils.release();
     }
 
@@ -147,9 +142,10 @@ public class SearchRunnable implements Runnable {
 
                 if(tmpList.contains(curInfo)) {
                     String relationStr = curModule + "\n";
-                    for(CompileInfo ii : tmpList) {
+                    for(int i=0;i<tmpList.size();i++) {
+                        CompileInfo ii = tmpList.get(i);
                         String lineStr = "";
-                        lineStr += CommonUtils.createLevelPrefix(traverseLevel) + ii;
+                        lineStr += CommonUtils.createLevelPrefix(i) + ii;
                         if(lineStr.length() > maxLineLen) {
                             maxLineLen = lineStr.length();
                         }

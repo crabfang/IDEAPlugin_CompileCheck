@@ -6,6 +6,7 @@ import com.cabe.idea.plugin.setting.SettingForm;
 import com.cabe.idea.plugin.utils.CommonUtils;
 import com.cabe.idea.plugin.utils.Logger;
 import com.cabe.idea.plugin.utils.ProjectUtils;
+import com.cabe.idea.plugin.utils.XmlUtils;
 import com.intellij.openapi.application.ApplicationManager;
 import org.apache.http.util.TextUtils;
 
@@ -27,6 +28,7 @@ public class ProjectRunnable implements Runnable {
 
     @Override
     public void run() {
+        XmlUtils.init();
         if(TextUtils.isEmpty(modulePath)) {
             String tips = "file path is none";
             Logger.info(tips);
@@ -49,6 +51,7 @@ public class ProjectRunnable implements Runnable {
             dialog.setLabel(tips);
             dialog.setVisible(true);
         }
+        XmlUtils.release();
     }
 
     private int maxLineLen = 0;

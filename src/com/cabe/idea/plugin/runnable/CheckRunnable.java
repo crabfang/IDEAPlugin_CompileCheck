@@ -39,8 +39,10 @@ public class CheckRunnable implements Runnable {
     }
 
     public void run() {
+        XmlUtils.init();
         List<CompileInfo> compileList = getCompileList(mQuery);
         showResult(compileList);
+        XmlUtils.release();
     }
 
     private void showResult(final List<CompileInfo> compileList) {
@@ -68,8 +70,7 @@ public class CheckRunnable implements Runnable {
     }
 
     public static List<CompileInfo> getCompileList(String aarInfo) {
-        XmlUtils.init();
-
+        long deltaTime = System.currentTimeMillis();
         List<CompileInfo> compileList = null;
         String pomCache = PomUtils.createPomFilePath(aarInfo);
         File cache = new File(pomCache);
@@ -81,22 +82,27 @@ public class CheckRunnable implements Runnable {
                 Logger.info("local android pom : " + androidPom);
                 compileList = XmlUtils.parsePom4DependencyWithFile(androidPom);
             } else {
-                List<String> urlList = getUrlList(aarInfo);
-                for(String url : urlList) {
-                    String response = httpGet(url);
-                    if(!TextUtils.isEmpty(response)) {
-                        compileList = XmlUtils.parsePom4Dependency(response);
-                        try {
-                            PomUtils.savePom(aarInfo, response);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                if(!aarInfo.contains("null")) {
+                    List<String> urlList = getUrlList(aarInfo);
+                    for(String url : urlList) {
+                        String response = httpGet(url);
+                        if(!TextUtils.isEmpty(response)) {
+                            compileList = XmlUtils.parsePom4Dependency(response);
+                            try {
+                                PomUtils.savePom(aarInfo, response);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
             }
         }
-        XmlUtils.release();
+        deltaTime = System.currentTimeMillis() - deltaTime;
+        if(deltaTime > 1000) {
+            Logger.info(aarInfo + " --> delta time : " + deltaTime);
+        }
         return compileList;
     }
 
