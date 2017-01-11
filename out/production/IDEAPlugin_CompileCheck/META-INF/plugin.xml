@@ -2,7 +2,7 @@
   <depends>com.intellij.modules.lang</depends>
   <id>com.cabe.plugin.as.compileCheck</id>
   <name>CompileCheck</name>
-  <version>1.3</version>
+  <version>1.4</version>
   <vendor email="crabfang@163.com" url="https://github.com/crabfang/IDEAPlugin_CompileCheck">IDEAPlugin_CompileCheck</vendor>
 
   <description><![CDATA[
