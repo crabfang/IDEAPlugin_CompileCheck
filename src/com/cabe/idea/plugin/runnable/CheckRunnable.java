@@ -2,6 +2,7 @@ package com.cabe.idea.plugin.runnable;
 
 import com.cabe.idea.plugin.dialog.CompileCheckDialog;
 import com.cabe.idea.plugin.model.CompileInfo;
+import com.cabe.idea.plugin.model.MetaData;
 import com.cabe.idea.plugin.setting.SettingForm;
 import com.cabe.idea.plugin.utils.CommonUtils;
 import com.cabe.idea.plugin.utils.Logger;
@@ -32,15 +33,15 @@ public class CheckRunnable implements Runnable {
     private static String suffixRelease = "/release";
     private static String repo4JCenter = "http://jcenter.bintray.com";
 
-    private String mQuery;
+    private String aarInfo;
 
-    public CheckRunnable(String query) {
-        this.mQuery = query;
+    public CheckRunnable(String aarInfo) {
+        this.aarInfo = aarInfo;
     }
 
     public void run() {
         XmlUtils.init();
-        List<CompileInfo> compileList = getCompileList(mQuery);
+        List<CompileInfo> compileList = getCompileList(aarInfo);
         showResult(compileList);
         XmlUtils.release();
     }
@@ -69,8 +70,35 @@ public class CheckRunnable implements Runnable {
         });
     }
 
+    private static boolean isUnsteadinessVersion(String aarInfo) {
+        return aarInfo.contains("+") || aarInfo.contains("latest");
+    }
+
     public static List<CompileInfo> getCompileList(String aarInfo) {
         long deltaTime = System.currentTimeMillis();
+
+        if(aarInfo.endsWith("null")) {
+            aarInfo = aarInfo.replace("null", "+");
+        }
+        if(isUnsteadinessVersion(aarInfo)) {
+            List<String> metadata = getMetadataUrlList(aarInfo);
+            MetaData data = null;
+            for(String url : metadata) {
+                MetaData item = getLastVersion(url);
+                if(item != null) {
+                    if(data == null) {
+                        data = item;
+                    } else {
+                        if(data.lastTime.compareTo(item.lastTime) > 0) {
+                            data = item;
+                        }
+                    }
+                }
+            }
+            if(data != null && !TextUtils.isEmpty(data.release)) {
+                aarInfo = aarInfo.replace("+", data.release).replace("latest", data.release);
+            }
+        }
         List<CompileInfo> compileList = null;
         String pomCache = PomUtils.createPomFilePath(aarInfo);
         File cache = new File(pomCache);
@@ -87,10 +115,12 @@ public class CheckRunnable implements Runnable {
                         String response = httpGet(url);
                         if(!TextUtils.isEmpty(response)) {
                             compileList = XmlUtils.parsePom4Dependency(response);
-                            try {
-                                PomUtils.savePom(aarInfo, response);
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                            if(!isUnsteadinessVersion(aarInfo)) {
+                                try {
+                                    PomUtils.savePom(aarInfo, response);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
                             break;
                         }
@@ -131,15 +161,38 @@ public class CheckRunnable implements Runnable {
         return responseStr;
     }
 
+    private static List<String> getMetadataUrlList(String aarInfo) {
+        List<String> list = new ArrayList<>();
+
+        String customPath = SettingForm.getCustomPath();
+        String suffix = "/maven-metadata.xml";
+        list.add(createUrl(customPath + suffixSnapshot, aarInfo, false) + suffix);
+        list.add(createUrl(customPath + suffixRelease, aarInfo, false) + suffix);
+        list.add(createUrl(repo4JCenter, aarInfo, false) + suffix);
+
+        return list;
+    }
+
     private static List<String> getUrlList(String aarInfo) {
         List<String> list = new ArrayList<>();
 
         String customPath = SettingForm.getCustomPath();
-        list.add(createUrl(customPath + suffixSnapshot, aarInfo));
-        list.add(createUrl(customPath + suffixRelease, aarInfo));
-        list.add(createUrl(repo4JCenter, aarInfo));
+        if(aarInfo.contains("SNAPSHOT")) {
+            list.add(createUrl(customPath + suffixSnapshot, aarInfo, true));
+        } else {
+            list.add(createUrl(customPath + suffixRelease, aarInfo, true));
+        }
+        list.add(createUrl(repo4JCenter, aarInfo, true));
 
         return list;
+    }
+
+    private static MetaData getLastVersion(String url) {
+        String response = httpGet(url);
+        if(TextUtils.isEmpty(response)) {
+            return null;
+        }
+        return XmlUtils.parseXml4Metadata(response);
     }
 
     private static String getVersionPom(String url) {
@@ -150,7 +203,7 @@ public class CheckRunnable implements Runnable {
         return XmlUtils.parseHtml4Version(response);
     }
 
-    private static String createUrl(String url, String aarInfo) {
+    private static String createUrl(String url, String aarInfo, boolean containerVersion) {
         String[] aarArray = aarInfo.split(":");
         if(aarArray.length > 2) {
             String groupId = aarArray[0];
@@ -159,11 +212,14 @@ public class CheckRunnable implements Runnable {
             for(String item : groupId.split("\\.")) {
                 url += "/" + item;
             }
-            url += "/" + artifactId + "/" + version + "/";
-            if(!aarInfo.contains("SNAPSHOT")) {
-                url += String.format("%s-%s.pom", artifactId, version);
-            } else {
-                url += getVersionPom(url);
+            url += "/" + artifactId;
+            if(containerVersion) {
+                url += "/" + version + "/";
+                if(!aarInfo.contains("SNAPSHOT")) {
+                    url += String.format("%s-%s.pom", artifactId, version);
+                } else {
+                    url += getVersionPom(url);
+                }
             }
         }
         return url;

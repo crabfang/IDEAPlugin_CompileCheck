@@ -37,6 +37,10 @@ public class CompileInfo {
         return super.equals(obj);
     }
 
+    public String getMeteData() {
+        return createCompile(group, artifact, version) + "#maven-metadata.xml";
+    }
+
     public String toString() {
         return createCompile(group, artifact, version);
     }

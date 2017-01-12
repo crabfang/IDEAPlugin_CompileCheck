@@ -1,12 +1,12 @@
 package com.cabe.idea.plugin.utils;
 
 import com.cabe.idea.plugin.model.CompileInfo;
+import com.cabe.idea.plugin.model.MetaData;
 import com.cabe.idea.plugin.model.PomInfo;
 import org.apache.http.util.TextUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -30,6 +30,24 @@ public class XmlUtils {
 
     public static void release() {
         builderFactory = null;
+    }
+
+    private static Node getNode(Document doc, String tag, boolean isLast) {
+        if(doc == null || TextUtils.isEmpty(tag)) return null;
+
+        NodeList nodeList = doc.getElementsByTagName(tag);
+        if(nodeList != null && nodeList.getLength() > 0) {
+            if(isLast) {
+                return nodeList.item(nodeList.getLength() - 1);
+            } else {
+                return nodeList.item(0);
+            }
+        }
+        return null;
+    }
+
+    private static Node getSingleNode(Document doc, String tag) {
+        return getNode(doc, tag, false);
     }
 
     private static List<CompileInfo> parseDependency(NodeList nodeList) {
@@ -129,15 +147,14 @@ public class XmlUtils {
         String val = null;
         placeHolder = placeHolder.replace("${", "");
         placeHolder = placeHolder.replace("}", "");
-        NodeList nodeList = doc.getElementsByTagName(placeHolder);
-        if(nodeList != null && nodeList.getLength() > 0) {
-            Node node = nodeList.item(0);
+
+        Node node = getSingleNode(doc, placeHolder);
+        if(node != null) {
             val = node.getTextContent();
         } else {
             String key = placeHolder.replace("project.", "");
-            nodeList = doc.getElementsByTagName(key);
-            if(nodeList != null && nodeList.getLength() > 0) {
-                Node node = nodeList.item(0);
+            node = getSingleNode(doc, key);
+            if(node != null) {
                 val = node.getTextContent();
             }
         }
@@ -228,5 +245,45 @@ public class XmlUtils {
             e.printStackTrace();
         }
         return versionPom;
+    }
+
+    public static MetaData parseXml4Metadata(String xmlStr) {
+        MetaData data = null;
+        Document document;
+        try {
+            xmlStr = handleHtml(xmlStr);
+            StringReader sr = new StringReader(xmlStr);
+            InputSource is = new InputSource(sr);
+
+            //DOM parser instance
+            DocumentBuilder builder = builderFactory.newDocumentBuilder();
+            //parse an XML file into a DOM tree
+            document = builder.parse(is);
+
+            Node nodeVersion = getSingleNode(document, "release");
+            if(nodeVersion != null) {
+                String version = nodeVersion.getTextContent();
+                if(!TextUtils.isEmpty(version)) {
+                    data = new MetaData();
+                    data.release = version;
+                }
+            }
+            if(data == null) {
+                nodeVersion = getNode(document, "version", true);
+                if(nodeVersion != null) {
+                    data = new MetaData();
+                    data.release = nodeVersion.getTextContent();
+                }
+            }
+            if(data != null) {
+                Node nodeLast = getSingleNode(document, "lastUpdated");
+                if(nodeLast != null) {
+                    data.lastTime = nodeLast.getTextContent();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return data;
     }
 }
