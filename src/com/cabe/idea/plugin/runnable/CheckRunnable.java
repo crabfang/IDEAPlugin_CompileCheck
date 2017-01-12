@@ -89,7 +89,7 @@ public class CheckRunnable implements Runnable {
                     if(data == null) {
                         data = item;
                     } else {
-                        if(data.lastTime.compareTo(item.lastTime) > 0) {
+                        if(data.lastTime.compareTo(item.lastTime) < 0) {
                             data = item;
                         }
                     }
